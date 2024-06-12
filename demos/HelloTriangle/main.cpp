@@ -81,7 +81,7 @@ int demo_main()
 
 	Renderer.CreateSwapchain(width, height);
 
-	Renderer.AddLayer<KonideSceneLayer>();
+	Renderer.CreateLayer<KonideSceneLayer>();
 
 	// Konide example ends
 

@@ -216,6 +216,8 @@ void KonideRenderer::CreateSwapchain(uint32_t width, uint32_t height)
     // Create swapchain
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.pNext = nullptr;
+    createInfo.flags = 0;
     createInfo.surface = surface;
 
     createInfo.minImageCount = 2;
@@ -261,9 +263,9 @@ void KonideRenderer::FlushRender()
 
 KonideRenderer::~KonideRenderer()
 {
+    if (swapchain.swapchain) vkDestroySwapchainKHR(device, swapchain.swapchain, nullptr);
     if(surface) vkDestroySurfaceKHR(instance, surface, nullptr);
-    if(swapchain.swapchain) vkDestroySwapchainKHR(device, swapchain.swapchain, nullptr);
 
-    vkDestroyInstance(instance, nullptr);
     vkDestroyDevice(device, nullptr);
+    vkDestroyInstance(instance, nullptr);
 }

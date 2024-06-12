@@ -74,12 +74,13 @@ public:
     bool Initialize(std::vector<const char*> extensions = {}, std::vector<const char*> layers = {});
 
     template <class LayerType>
-    uint32_t AddLayer(std::string name = "Default");
+    uint32_t CreateLayer(std::string name = "Default");
+    uint32_t AddLayer(KonideLayer* layer);
 
     template <class LayerType>
-    std::vector<KonideLayer*> GetLayersByType();
-    KonideLayer* GetLayerByID(uint32_t id);
-    KonideLayer* GetLayerByName(std::string name);
+    std::vector<KonideLayer*> GetLayersTyped();
+    KonideLayer* GetLayer(uint32_t id);
+    KonideLayer* GetLayer(std::string name);
 
     VkInstance GetInstance() const { return instance; }
 
@@ -87,7 +88,7 @@ public:
 
     void SetSurface(VkSurfaceKHR newSurface); 
     
-    void CreateDevice(std::vector<const char*> devExtensions, std::vector<const char*> devLayers); 
+    void CreateDevice(std::vector<const char*> devExtensions = {}, std::vector<const char*> devLayers = {}); 
     void CreateSwapchain(uint32_t width, uint32_t height);
     void RecreateSwapchain(uint32_t width, uint32_t height);
 
@@ -95,7 +96,7 @@ public:
 };
 
 template <class LayerType>
-inline uint32_t KonideRenderer::AddLayer(std::string name)
+inline uint32_t KonideRenderer::CreateLayer(std::string name)
 {
     KonideLayer* layer = new LayerType();
     Composition.push_back(layer);
