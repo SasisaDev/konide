@@ -16,7 +16,8 @@ enum EKonideRenderFeatureFlags
 {
     KONIDE_RENDER_FEATURE_NONE = 0,
     KONIDE_RENDER_FEATURE_SWAPCHAIN = 1 << 0,
-    KONIDE_RENDER_FEATURE_RAYTRACING = 1 << 1
+    KONIDE_RENDER_FEATURE_RAYTRACING = 1 << 1,
+    KONIDE_RENDER_FEATURE_VALIDATION_LAYERS = 1 << 2
 };
 
 struct KonideQueueFamilyIndices {
@@ -46,12 +47,19 @@ private:
     VkDevice device;
     VkSurfaceKHR surface;
 
+    VkDebugUtilsMessengerEXT debugMessenger;
+
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
+    VkSemaphore aquireSemaphore;
+    VkSemaphore submitSemaphore;
+    VkCommandPool cmdPool;
+    VkCommandBuffer cmdBuffer;
+
     KonideSwapchain swapchain;
 
-    KonideQueueFamilyIndices indices;
+    KonideQueueFamilyIndices queueFamilyIndices;
 
     VkPhysicalDevice (*DelegatePickPhysDevice)(std::vector<VkPhysicalDevice> &PhysicalDevices) = &KonideRenderer::InternalPickPhysDevice;
 
@@ -60,8 +68,11 @@ private:
     static VkPhysicalDevice InternalPickPhysDevice(std::vector<VkPhysicalDevice> &PhysicalDevices);
     static KonideQueueFamilyIndices InternalFindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface = 0);
 
+    std::vector<const char*> InternalAssembleExtensions();
     std::vector<const char*> InternalAssembleLayers();
+    
     std::vector<const char*> InternalAssembleDeviceExtensions();
+    std::vector<const char*> InternalAssembleDeviceLayers();
 protected:
     std::vector<KonideLayer*> Composition;
 
@@ -88,6 +99,7 @@ public:
 
     void SetSurface(VkSurfaceKHR newSurface); 
     
+    void CreateDebugMessenger(PFN_vkDebugUtilsMessengerCallbackEXT callback, void* userData);
     void CreateDevice(std::vector<const char*> devExtensions = {}, std::vector<const char*> devLayers = {}); 
     void CreateSwapchain(uint32_t width, uint32_t height);
     void RecreateSwapchain(uint32_t width, uint32_t height);

@@ -6,6 +6,11 @@
 #pragma comment(lib, "konide.lib")
 
 extern int demo_main();
+extern VkBool32 DebugMessageCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
+    void*                                            pUserData);
 
 #ifdef _WIN32
 
@@ -21,6 +26,17 @@ int WinMain(
 {
 	return demo_main();
 }
+
+VkBool32 DebugMessageCallback(
+    VkDebugUtilsMessageSeverityFlagBitsEXT           messageSeverity,
+    VkDebugUtilsMessageTypeFlagsEXT                  messageTypes,
+    const VkDebugUtilsMessengerCallbackDataEXT*      pCallbackData,
+    void*                                            pUserData)
+	{
+		OutputDebugStringA(pCallbackData->pMessage);
+		OutputDebugStringA("\n");
+		return VK_FALSE;
+	}
 #else
 int main()
 {
@@ -52,7 +68,7 @@ int demo_main()
 	SDL_UpdateWindowSurface(window);
 
 	// Konide example starts
-	KonideRenderer Renderer(KONIDE_RENDER_FEATURE_SWAPCHAIN);
+	KonideRenderer Renderer(KONIDE_RENDER_FEATURE_SWAPCHAIN | KONIDE_RENDER_FEATURE_VALIDATION_LAYERS);
 
 	unsigned int pExtCount = 0;
 
@@ -66,6 +82,8 @@ int demo_main()
 	}
 
 	Renderer.Initialize(SDLExtensions);
+
+	Renderer.CreateDebugMessenger(DebugMessageCallback, nullptr);
 
 	VkInstance instance = Renderer.GetInstance();
 	VkSurfaceKHR vksurface;
