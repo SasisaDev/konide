@@ -267,12 +267,12 @@ void KonideRenderer::CreateSwapchain(uint32_t width, uint32_t height)
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    uint32_t queueFamilyIndices[] = {queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value()};
+    uint32_t indices[] = {queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value()};
 
     if (queueFamilyIndices.graphicsFamily != queueFamilyIndices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         createInfo.queueFamilyIndexCount = 2;
-        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+        createInfo.pQueueFamilyIndices = indices;
     } else {
         createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
         createInfo.queueFamilyIndexCount = 0;
@@ -364,6 +364,11 @@ void KonideRenderer::FlushRender()
         range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
         vkCmdClearColorImage(cmdBuffer, swapchain.images[imgIdx], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, &color, 1, &range);
+
+        for(KonideLayer* layer : Composition)
+        {
+            layer->Render(cmdBuffer, device);
+        }
     }
 
     vkEndCommandBuffer(cmdBuffer);

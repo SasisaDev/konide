@@ -9,7 +9,7 @@ class KonideSceneLayer : public KonideLayer
 protected:
 
 public:
-    
+    virtual void Render(VkCommandBuffer cmd, VkDevice device) override;
 };
 
 #endif
