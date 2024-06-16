@@ -5,12 +5,12 @@
 #include <string>
 #include <optional>
 
+#include "composition.h"
+
 #ifndef VK_NO_PROTOTYPES
 #	define VK_NO_PROTOTYPES
 #endif
 #include <vulkan/vulkan.h>
-
-#include "layer.h"
 
 enum EKonideRenderFeatureFlags
 {
@@ -29,23 +29,14 @@ struct KonideQueueFamilyIndices {
     }
 };
 
-struct KonideSwapchain {
-    VkSwapchainKHR swapchain;
-    std::vector<VkImage> images;
-    std::vector<VkImageView> imageViews;
-    std::vector<VkFramebuffer> framebuffers;
-
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-};
-
 class KonideRenderer
 {
 private:
+    std::vector<KonideComposition*> Compositions;
+
     VkInstance instance;
     VkPhysicalDevice physDevice;
     VkDevice device;
-    VkSurfaceKHR surface;
 
     VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -97,7 +88,9 @@ public:
 
     void SetPickPhysicalDeviceDelegate(VkPhysicalDevice (*NewDelegatePickPhysDevice)(std::vector<VkPhysicalDevice> &PhysicalDevices)) { DelegatePickPhysDevice = NewDelegatePickPhysDevice; }
 
-    void SetSurface(VkSurfaceKHR newSurface); 
+    void SetSurface(VkSurfaceKHR newSurface) {swapchain.surface = newSurface;}
+
+    uint32_t CreateComposition(VkSurfaceKHR surface);
     
     void CreateDebugMessenger(PFN_vkDebugUtilsMessengerCallbackEXT callback, void* userData);
     void CreateDevice(std::vector<const char*> devExtensions = {}, std::vector<const char*> devLayers = {}); 

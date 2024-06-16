@@ -49,6 +49,7 @@ extern "C" __declspec(dllimport) FARPROC __stdcall GetProcAddress(HINSTANCE hMod
 #endif
 
 #include <konide/vulkan/vkloader_symbols.h>
+#include "vkloader_symbols.cpp"
 
 namespace vkloader {
 	bool bInitialized = false;

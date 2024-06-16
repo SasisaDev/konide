@@ -9,7 +9,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(vulkan)
 
-set(Sources "src/layer.cpp" "src/renderer.cpp" "src/proxy.cpp" "src/vulkan/vkloader.hpp" "src/generic/KonideSceneLayer.cpp")
+set(Sources "src/layer.cpp" "src/renderer.cpp" "src/proxy.cpp" "src/composition.cpp" "src/vulkan/vkloader.hpp" "src/generic/KonideSceneLayer.cpp")
 
 add_library(konide ${Sources})
 

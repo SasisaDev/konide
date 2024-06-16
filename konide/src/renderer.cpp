@@ -120,15 +120,18 @@ bool KonideRenderer::Initialize(std::vector<const char*> extensions, std::vector
     return true;
 }
 
-void KonideRenderer::SetSurface(VkSurfaceKHR newSurface)
+uint32_t KonideRenderer::CreateComposition(VkSurfaceKHR surface)
 {
-    surface = newSurface;
+    KonideComposition* composition = new KonideComposition(surface);
+
+    Compositions.push_back(composition);
+    return Compositions.size()-1;
 }
 
 void KonideRenderer::CreateDevice(std::vector<const char*> devExtensions, std::vector<const char*> devLayers)
 {
     // Create Device Queue
-    queueFamilyIndices = InternalFindQueueFamilies(physDevice, surface);
+    queueFamilyIndices = InternalFindQueueFamilies(physDevice, swapchain.surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = { queueFamilyIndices.graphicsFamily.value(), queueFamilyIndices.presentFamily.value() };
@@ -228,14 +231,14 @@ void KonideRenderer::CreateSwapchain(uint32_t width, uint32_t height)
 
     std::vector<VkSurfaceFormatKHR> availableFormats;
     uint32_t formatCount;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physDevice, surface, &formatCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physDevice, swapchain.surface, &formatCount, nullptr);
 
     if (formatCount == 0) {
         throw std::runtime_error("No surface formats available");
     }
 
     availableFormats.resize(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(physDevice, surface, &formatCount, availableFormats.data());
+    vkGetPhysicalDeviceSurfaceFormatsKHR(physDevice, swapchain.surface, &formatCount, availableFormats.data());
 
     VkSurfaceFormatKHR resultFormat;
     for (const auto& availableFormat : availableFormats) {
@@ -258,7 +261,7 @@ void KonideRenderer::CreateSwapchain(uint32_t width, uint32_t height)
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.pNext = nullptr;
     createInfo.flags = 0;
-    createInfo.surface = surface;
+    createInfo.surface = swapchain.surface;
 
     createInfo.minImageCount = 2;
     createInfo.imageFormat = surfaceFormat.format;
@@ -365,9 +368,9 @@ void KonideRenderer::FlushRender()
 
         vkCmdClearColorImage(cmdBuffer, swapchain.images[imgIdx], VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, &color, 1, &range);
 
-        for(KonideLayer* layer : Composition)
+        for(KonideComposition* composition : Compositions)
         {
-            layer->Render(cmdBuffer, device);
+            composition->Render(cmdBuffer, device);
         }
     }
 
@@ -415,7 +418,7 @@ KonideRenderer::~KonideRenderer()
     }
 
     if (swapchain.swapchain) vkDestroySwapchainKHR(device, swapchain.swapchain, nullptr);
-    if(surface) vkDestroySurfaceKHR(instance, surface, nullptr);
+    if(swapchain.surface) vkDestroySurfaceKHR(instance, swapchain.surface, nullptr);
 
     vkDestroyDevice(device, nullptr);
     vkDestroyInstance(instance, nullptr);
